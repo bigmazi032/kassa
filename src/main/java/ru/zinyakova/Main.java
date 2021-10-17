@@ -37,10 +37,10 @@ public class Main {
 
     public static void main(String[] args) {
         Theatre theatre = new Theatre();
-        theatre.setName("ТЮЗ");
-        int row = theatreDao.create(theatre);
-        if (row == 1) {
-            System.out.println("Создана запись театра ");
+        theatre.setName("Театр Маяковского");
+        Theatre theatreDb = theatreDao.create(theatre);
+        if (theatreDb != null) {
+            System.out.println("Создана запись театра id = " + theatreDb.getId());
         }
 
         Theatre theatreTuz = theatreDao.getByName("ТЮЗ");

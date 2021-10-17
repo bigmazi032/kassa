@@ -3,10 +3,7 @@ package ru.zinyakova.dao;
 import ru.zinyakova.entity.Theatre;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 // https://metanit.com/java/database/2.6.php
 
@@ -18,12 +15,25 @@ public class TheatreDao {
             "INSERT  theatre (name) " +
                     "VALUES (?)";
 
-    public int create (Theatre theatre) {
+    public Theatre create (Theatre theatre) {
         try (Connection connection = dataSource.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement(CREATE_THEATRE_SQL);
+            PreparedStatement preparedStatement = connection.prepareStatement(CREATE_THEATRE_SQL,
+                                                                    Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, theatre.getName());
-            int row = preparedStatement.executeUpdate();
-            return row;
+            int affectedRows = preparedStatement.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Creating theatre failed, no rows affected.");
+            }
+
+            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    theatre.setId(generatedKeys.getLong(1));
+                }
+                else {
+                    throw new SQLException("Creating theatre failed, no ID obtained.");
+                }
+            }
+            return theatre;
         }catch (SQLException e) {
             throw new IllegalStateException("Error during execution.", e);
         }
