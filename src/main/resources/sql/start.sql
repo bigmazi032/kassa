@@ -5,7 +5,7 @@ CREATE TABLE theatre
 
 CREATE TABLE performance
 (id INT PRIMARY KEY AUTO_INCREMENT,
- name VARCHAR(50)
+ name VARCHAR(50) UNIQUE
 );
 
 CREATE TABLE schedule
