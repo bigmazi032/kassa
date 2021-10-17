@@ -4,8 +4,6 @@ import ru.zinyakova.dao.DaoFactory;
 import ru.zinyakova.dao.TheatreDao;
 import ru.zinyakova.entity.Theatre;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 
 
 public class Main {
@@ -37,10 +35,15 @@ public class Main {
 
     public static void main(String[] args) {
         Theatre theatre = new Theatre();
-        theatre.setName("Театр Маяковского");
+        theatre.setName("Драматический театр2");
         Theatre theatreDb = theatreDao.create(theatre);
         if (theatreDb != null) {
             System.out.println("Создана запись театра id = " + theatreDb.getId());
+        }
+
+        Theatre theatreGet = theatreDao.get(theatreDb.getId());
+        if (theatreGet !=null) {
+            System.out.println("Получена запись. id = " + theatreGet.getId() + " Название = " + theatreGet.getName());
         }
 
         Theatre theatreTuz = theatreDao.getByName("ТЮЗ");
