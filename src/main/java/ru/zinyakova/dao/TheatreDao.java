@@ -39,8 +39,29 @@ public class TheatreDao {
         }
     }
 
+    private final String GET_THEATRE_BY_ID_SQL =
+            "SELECT\n" +
+                    "    id,\n" +
+                    "    name\n" +
+                    "FROM theatre\n" +
+                    "WHERE id = ?";
     public Theatre get (Long id) {
-        return null;
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(GET_THEATRE_BY_ID_SQL);
+            preparedStatement.setLong(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            Theatre theatre = null;
+            while (resultSet.next()) {
+                Long theatreId = resultSet.getLong("id");
+                String nameTheatre = resultSet.getString("name");
+                theatre = new Theatre();
+                theatre.setId(theatreId);
+                theatre.setName(nameTheatre);
+            }
+            return theatre;
+        }catch (SQLException e) {
+            throw new IllegalStateException("Error during execution.", e);
+        }
     }
 
     private final String GET_THEATRE_BY_NAME_SQL =

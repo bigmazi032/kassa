@@ -36,16 +36,20 @@ public class Main {
     public static void main(String[] args) {
         Theatre theatre = new Theatre();
         theatre.setName("Драматический театр2");
+
+        // создаем запись в таблице
         Theatre theatreDb = theatreDao.create(theatre);
         if (theatreDb != null) {
             System.out.println("Создана запись театра id = " + theatreDb.getId());
+
+            // пробуем получить запись по id
+            Theatre theatreGet = theatreDao.get(theatreDb.getId());
+            if (theatreGet !=null) {
+                System.out.println("Получена запись. id = " + theatreGet.getId() + " Название = " + theatreGet.getName());
+            }
         }
 
-        Theatre theatreGet = theatreDao.get(theatreDb.getId());
-        if (theatreGet !=null) {
-            System.out.println("Получена запись. id = " + theatreGet.getId() + " Название = " + theatreGet.getName());
-        }
-
+        // получаем запись по названию
         Theatre theatreTuz = theatreDao.getByName("ТЮЗ");
         if (theatreTuz !=null) {
             System.out.println("Получена запись ТЮЗа. id = " + theatreTuz.getId());
