@@ -17,17 +17,22 @@ public class TheatreDao {
 
     public Theatre create (Theatre theatre) {
         try (Connection connection = dataSource.getConnection()) {
+            // создаем запрос
             PreparedStatement preparedStatement = connection.prepareStatement(CREATE_THEATRE_SQL,
                                                                     Statement.RETURN_GENERATED_KEYS);
+            // добавляем в запрос значения праметров
             preparedStatement.setString(1, theatre.getName());
+            // заапускаем запрос на выполнение
             int affectedRows = preparedStatement.executeUpdate();
+
             if (affectedRows == 0) {
                 throw new SQLException("Creating theatre failed, no rows affected.");
             }
-
-            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    theatre.setId(generatedKeys.getLong(1));
+            // извлекается из таблицы запись, которую мы только что добавили
+            try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
+                if (resultSet.next()) {
+                    // добавляем в наш объект, который пришел id созданной записи
+                    theatre.setId(resultSet.getLong(1));
                 }
                 else {
                     throw new SQLException("Creating theatre failed, no ID obtained.");
@@ -96,4 +101,11 @@ public class TheatreDao {
     public Theatre delete (Theatre obj) {
         return null;
     }
+
+    private static String GET_THEATRE_BY_NAME =
+            "SELECT\n" +
+            "    id,\n" +
+            "    name\n" +
+            "FROM theatre\n" +
+            "WHERE name = ?";
 }
