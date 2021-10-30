@@ -27,6 +27,8 @@ public class DaoFactory {
     }
 
     private static HikariDataSource getHikariDataSource () {
+        // 1) Создать локально базу данных cashbox
+        // 2) Добавить пользователя с логином devel и паролем qwerty со всеми привелегиями для работы с cashbox
         HikariDataSource hikariDataSource = new HikariDataSource();
         hikariDataSource.setJdbcUrl(System.getProperty("jdbcUrl", "jdbc:mysql://localhost:3306/cashbox"));
         hikariDataSource.setUsername(System.getProperty("jdbcUsername","devel"));
