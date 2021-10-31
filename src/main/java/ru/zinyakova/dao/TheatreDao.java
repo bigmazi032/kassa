@@ -22,7 +22,7 @@ public class TheatreDao {
                                                                     Statement.RETURN_GENERATED_KEYS);
             // добавляем в запрос значения праметров
             preparedStatement.setString(1, theatre.getName());
-            // заапускаем запрос на выполнение
+            // запускаем запрос на выполнение
             int affectedRows = preparedStatement.executeUpdate();
 
             if (affectedRows == 0) {
