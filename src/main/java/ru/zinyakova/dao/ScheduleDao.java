@@ -13,9 +13,9 @@ public class ScheduleDao {
 
 
     // показать список театров
-    private final String SHOW_THEATRES_SQL =
-            "SELECT t.name\n" +
-                    "FROM theatre t";
+    private final String SHOW_THEATRES_SQL = "SELECT t.id id,\n" +
+            "       t.name name\n" +
+            "FROM theatre t";
 
     public ArrayList<Theatre> getAllTheatres () {
         try (Connection connection = dataSource.getConnection()) {
@@ -38,13 +38,14 @@ public class ScheduleDao {
     }
 
     // показать выступления по конкретному театру
-    private  final String SHOW_PERFORMANCES_SQL = "SELECT p.name\n" +
+    private  final String SHOW_PERFORMANCES_SQL = "SELECT p.id   id,\n" +
+            "       p.name name\n" +
             "FROM schedule s\n" +
-            "JOIN performance p on s.performance_id = p.id\n" +
-            "JOIN theatre t on s.theatre_id = t.id\n" +
-            "WHERE t.name = ?\n";
+            "         JOIN performance p on s.performance_id = p.id\n" +
+            "         JOIN theatre t on s.theatre_id = t.id\n" +
+            "WHERE t.id = ?";
 
-    public ArrayList<Performance> GetPerformanceByTheatre(Long id){
+    public ArrayList<Performance> getPerformanceByTheatre(Long id){
         try(Connection connection = dataSource.getConnection()){
             PreparedStatement preparedStatement = connection.prepareStatement(SHOW_PERFORMANCES_SQL);
             preparedStatement.setLong(1, id);
@@ -65,27 +66,30 @@ public class ScheduleDao {
     }
 
     // показать даты конкретного выступления в конкреном театре
-    private final String SHOW_DATE_SQL = "SELECT s.date\n" +
+    private final String SHOW_DATE_SQL = "SELECT s.id   id,\n" +
+            "       s.date date\n" +
             "FROM schedule s\n" +
-            "JOIN theatre t on s.theatre_id = t.id\n" +
-            "JOIN performance p on s.performance_id = p.id\n" +
-            "WHERE t.name = ? AND p.name = ?;\n";
+            "         JOIN theatre t on s.theatre_id = t.id\n" +
+            "         JOIN performance p on s.performance_id = p.id\n" +
+            "WHERE t.id = ?\n" +
+            "  AND p.id = ?\n";
 
-    public ArrayList<Date> GetDateByTP(Long idT, Long idP){
+    public ArrayList<Schedule> getDateByTP(Long idT, Long idP){
         try(Connection connection = dataSource.getConnection()){
             PreparedStatement preparedStatement = connection.prepareStatement(SHOW_DATE_SQL);
             preparedStatement.setLong(1, idT);
             preparedStatement.setLong(2, idP);
             ResultSet resultSet = preparedStatement.executeQuery();
-            ArrayList<Date> dates = new ArrayList<>();
+            ArrayList<Schedule> schedules = new ArrayList<>();
             while(resultSet.next()){
-                Date date = resultSet.getDate("date");
-                dates.add(date);
+                Schedule s = new Schedule();
+                s.setId(resultSet.getLong("id"));
+                s.setDate(resultSet.getDate("date"));
+                schedules.add(s);
             }
-            return  dates;
+            return  schedules;
         }catch (SQLException e) {
             throw new IllegalStateException("Error during execution.", e);
         }
     }
-
 }

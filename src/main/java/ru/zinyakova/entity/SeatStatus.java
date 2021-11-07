@@ -1,11 +1,12 @@
 package ru.zinyakova.entity;
 
-import java.sql.Date;
+import lombok.Data;
 
+
+@Data
 public class SeatStatus {
     private Long id;
-    private Long schedule_id;
-    private Long seat_category_id;
+    private String name;
     private Long price;
     private Long total;
     private Long free;
