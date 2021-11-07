@@ -2,9 +2,11 @@ package ru.zinyakova.dao;
 
 import ru.zinyakova.entity.Receipt;
 import ru.zinyakova.entity.ReceiptItem;
+import ru.zinyakova.entity.Schedule;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
 
 public class ReceiptItemDao {
 
@@ -13,8 +15,8 @@ public class ReceiptItemDao {
     private static String CREATE_RECEIPT_ITEM_SQL = "INSERT receipt_item (receipt_id, seats_status_id, quantity, summa)\n" +
             "VALUES (?,?,?,?)";
 
-    public ReceiptItem createNewReceiptItem(ReceiptItem item){
-        try(Connection connection = dataSource.getConnection()) {
+    public ReceiptItem createNewReceiptItem(ReceiptItem item) {
+        try (Connection connection = dataSource.getConnection()) {
             PreparedStatement preparedStatement = connection.prepareStatement(CREATE_RECEIPT_ITEM_SQL, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setLong(1, item.getReceiptId());
             preparedStatement.setLong(2, item.getSeatStatusId());
@@ -30,8 +32,9 @@ public class ReceiptItemDao {
                 } else {
                     throw new SQLException("Creating receipt failed, no ID obtained.");
                 }
-            } return item;
-        }catch (SQLException e){
+            }
+            return item;
+        } catch (SQLException e) {
             throw new IllegalStateException("Error during execution.", e);
         }
     }
@@ -43,7 +46,7 @@ public class ReceiptItemDao {
             "FROM receipt_item i\n" +
             "WHERE i.id = ?";
 
-    public ReceiptItem getReceiptItemById (Long id){
+    public ReceiptItem getReceiptItemById(Long id) {
         try (Connection connection = dataSource.getConnection()) {
             PreparedStatement preparedStatement = connection.prepareStatement(SHOW_ITEM_BY_ID_SQL);
             preparedStatement.setLong(1, id);
@@ -61,7 +64,7 @@ public class ReceiptItemDao {
                 item.setSumma(summa);
             }
             return item;
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             throw new IllegalStateException("Error during execution.", e);
         }
     }
@@ -70,18 +73,46 @@ public class ReceiptItemDao {
             "SET quantity = ?, summa = ?\n" +
             "WHERE i.id = ?";
 
-    public int updateReceiptItem(ReceiptItem item){
-        try(Connection connection = dataSource.getConnection()){
+    public int updateReceiptItem(ReceiptItem item) {
+        try (Connection connection = dataSource.getConnection()) {
             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_RECEIPT_ITEM_SQL);
-            preparedStatement.setLong(1,item.getQuantity());
-            preparedStatement.setLong(2,item.getSumma());
-            preparedStatement.setLong(3,item.getId());
+            preparedStatement.setLong(1, item.getQuantity());
+            preparedStatement.setLong(2, item.getSumma());
+            preparedStatement.setLong(3, item.getId());
             int affectedRows = preparedStatement.executeUpdate();
-            if (affectedRows == 0){
+            if (affectedRows == 0) {
                 throw new SQLException("Updating receipt failed, no rows affected.");
             }
             return affectedRows;
-        }catch ( SQLException e){
+        } catch (SQLException e) {
+            throw new IllegalStateException("No connection", e);
+        }
+    }
+
+    private final String GET_ITEMS_OF_RECEIPT_SQL = "SELECT r.id id,\n" +
+            "       r.seats_status_id seat,\n" +
+            "       r.quantity quantity,\n" +
+            "       r.summa summa\n" +
+            "FROM receipt_item r\n" +
+            "WHERE r.receipt_id = ?";
+
+    public ArrayList<ReceiptItem> getItemsOfReceipt(Long receiptId) {
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_RECEIPT_ITEM_SQL);
+            preparedStatement = connection.prepareStatement(GET_ITEMS_OF_RECEIPT_SQL);
+            preparedStatement.setLong(1, receiptId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            ArrayList<ReceiptItem> items = new ArrayList<>();
+            while(resultSet.next()){
+                ReceiptItem i = new ReceiptItem();
+                i.setReceiptId(resultSet.getLong("id"));
+                i.setSeatStatusId(resultSet.getLong("seat"));
+                i.setSumma(resultSet.getLong("summa"));
+                i.setQuantity(resultSet.getLong("quantity"));
+                items.add(i);
+            }
+            return items;
+        } catch (SQLException e) {
             throw new IllegalStateException("No connection", e);
         }
     }
