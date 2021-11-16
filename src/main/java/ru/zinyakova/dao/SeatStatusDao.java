@@ -77,4 +77,42 @@ public class SeatStatusDao {
             throw new IllegalStateException("Error during execution.", e);
         }
     }
+    private final String PRICE_BY_SEAT_STATUS_ID_SQL = "select s.price price\n" +
+            "from seats_status s\n" +
+            "where s.id = ?";
+
+    public Long getPriceBySeatStatusId(Long id){
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(PRICE_BY_SEAT_STATUS_ID_SQL);
+            preparedStatement.setLong(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            Long price = 0l;
+            while (resultSet.next()) {
+                price = resultSet.getLong("price");
+            }
+            return price;
+        } catch (SQLException e) {
+            throw new IllegalStateException("Error during execution.", e);
+        }
+    }
+
+    private String GET_DATE_BY_SEAT_STATUS_ID_SQL = "select s2.date date\n" +
+            "from seats_status s\n" +
+            "join schedule s2 on s2.id = s.schedule_id\n" +
+            "where s.id = ?";
+
+    public Date getDateBySeatStatusId (Long id){
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(GET_DATE_BY_SEAT_STATUS_ID_SQL);
+            preparedStatement.setLong(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            Date date = resultSet.getDate("date");
+            return date;
+        } catch (SQLException e) {
+            throw new IllegalStateException("Error during execution.", e);
+        }
+
+
+
+    }
 }

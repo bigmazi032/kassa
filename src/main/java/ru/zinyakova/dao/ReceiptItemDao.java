@@ -98,8 +98,7 @@ public class ReceiptItemDao {
 
     public ArrayList<ReceiptItem> getItemsOfReceipt(Long receiptId) {
         try (Connection connection = dataSource.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_RECEIPT_ITEM_SQL);
-            preparedStatement = connection.prepareStatement(GET_ITEMS_OF_RECEIPT_SQL);
+            PreparedStatement preparedStatement = connection.prepareStatement(GET_ITEMS_OF_RECEIPT_SQL);
             preparedStatement.setLong(1, receiptId);
             ResultSet resultSet = preparedStatement.executeQuery();
             ArrayList<ReceiptItem> items = new ArrayList<>();
@@ -116,4 +115,6 @@ public class ReceiptItemDao {
             throw new IllegalStateException("No connection", e);
         }
     }
+
+
 }

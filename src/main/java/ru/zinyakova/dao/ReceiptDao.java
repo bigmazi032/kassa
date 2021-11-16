@@ -1,12 +1,10 @@
 package ru.zinyakova.dao;
 
-import ru.zinyakova.entity.SeatStatus;
-import ru.zinyakova.entity.Receipt;
-import ru.zinyakova.entity.Schedule;
-import ru.zinyakova.entity.Theatre;
+import ru.zinyakova.entity.*;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
 
 
 public class ReceiptDao {
@@ -80,6 +78,81 @@ public class ReceiptDao {
             return affectedRows;
         }catch ( SQLException e){
             throw new IllegalStateException("No connection", e);
+        }
+    }
+
+    private String GET_FULL_RECEIPT_INFO_BY_ID_SQL = "SELECT r.summa receipt_summa,\n" +
+            "       it.id item_id,\n" +
+            "       r.id receipt_id,\n" +
+            "       r.date datePurchase,\n" +
+            "       s.id schedule_id,\n" +
+            "       ss.id seat_status_id,\n" +
+            "       t.id theatre_id,\n" +
+            "       t.name theatre,\n" +
+            "       p.id play_id,\n" +
+            "       p.name performance,\n" +
+            "       s.date performanceDate,\n" +
+            "       sc.id seat_category_id,\n" +
+            "       sc.name seat,\n" +
+            "       it.quantity quantity,\n" +
+            "       ss.price price,\n" +
+            "        ss.total total,\n" +
+            "       ss.free,\n" +
+            "       it.summa summa\n" +
+            "FROM receipt_item it\n" +
+            "JOIN receipt r on r.id = it.receipt_id\n" +
+            "JOIN seats_status ss on it.seats_status_id = ss.id\n" +
+            "JOIN seat_category sc on ss.seat_category_id = sc.id\n" +
+            "JOIN schedule s on s.id = ss.schedule_id\n" +
+            "JOIN performance p on p.id = s.performance_id\n" +
+            "JOIN theatre t on t.id = s.theatre_id\n" +
+            "WHERE receipt_id = ?";
+
+    public FullReceipt getFullReceipt (Long receiptId){
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(GET_FULL_RECEIPT_INFO_BY_ID_SQL);
+            preparedStatement.setLong(1, receiptId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet == null){
+                return null;
+            }
+            FullReceipt receipt = new FullReceipt();
+            while (resultSet.next()) {
+                Theatre newTheatre = new Theatre();
+                newTheatre.setId(resultSet.getLong("theatre_id"));
+                newTheatre.setName(resultSet.getString("theatre"));
+                Performance play = new Performance();
+                play.setId(resultSet.getLong("play_id"));
+                play.setName(resultSet.getString("performance"));
+                FullSchedule sc = new FullSchedule();
+                sc.setPerformance(play);
+                sc.setTheatre(newTheatre);
+                sc.setId(resultSet.getLong("schedule_id"));
+                sc.setDate(resultSet.getDate("performanceDate"));
+                SeatCategory seat = new SeatCategory();
+                seat.setId(resultSet.getLong("seat_category_id"));
+                seat.setName(resultSet.getString("seat"));
+                FullSeatStatus seatStatus = new FullSeatStatus();
+                seatStatus.setId(resultSet.getLong("seat_status_id"));
+                seatStatus.setSchedule(sc);
+                seatStatus.setPrice(resultSet.getLong("price"));
+                seatStatus.setSeatCategory(seat);
+                seatStatus.setTotal(resultSet.getLong("total"));
+                seatStatus.setFree(resultSet.getLong("free"));
+                FullReceiptItem item = new FullReceiptItem();
+                item.setId(resultSet.getLong("item_id"));
+                item.setSeatStatus(seatStatus);
+                item.setReceiptId(resultSet.getLong("receipt_id"));
+                item.setQuantity(resultSet.getLong("quantity"));
+                item.setSumma(resultSet.getLong("summa"));
+                receipt.setId(resultSet.getLong("receipt_id"));
+                receipt.getItems().add(item);
+                receipt.setDate(resultSet.getDate("datePurchase"));
+                receipt.setSumma(resultSet.getLong("receipt_summa"));
+            }
+            return receipt;
+        }catch (SQLException e) {
+            throw new IllegalStateException("Error during execution.", e);
         }
     }
 }

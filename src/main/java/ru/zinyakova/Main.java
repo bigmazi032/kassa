@@ -5,7 +5,11 @@ import ru.zinyakova.entity.*;
 
 import java.sql.Date;
 import java.util.ArrayList;
-
+import ru.zinyakova.service.BuyTicketService;
+import ru.zinyakova.service.BuyTicketServiceImpl;
+import ru.zinyakova.service.dto.ReceiptDto;
+import ru.zinyakova.service.Converter;
+import ru.zinyakova.service.BuyTicketServiceImpl;
 
 public class Main {
 //    public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
@@ -70,44 +74,59 @@ public class Main {
     private static SeatStatusDao seatStatus = new SeatStatusDao();
     public static ReceiptDao receiptDao = new ReceiptDao();
     public static ReceiptItemDao receiptItemDao = new ReceiptItemDao();
+    public static ReceiptItemReturnDao receiptItemReturnDao = new ReceiptItemReturnDao();
+    public static ReceiptReturnDao receiptReturnDao = new ReceiptReturnDao();
+    public static BuyTicketServiceImpl buyTicketService = new BuyTicketServiceImpl();
+    public static Converter converter = new Converter();
+    public static BuyTicketServiceImpl service = new BuyTicketServiceImpl();
 
     public static void main(String[] args) {
-        ArrayList<Theatre> allTheatres = schedule.getAllTheatres();
-        for (int i = 0; i< allTheatres.size(); i++) {
-            System.out.println("id: "+ allTheatres.get(i).getId() + " name: " + allTheatres.get(i).getName() );
-        }
-        ArrayList<Performance> performances = schedule.getPerformanceByTheatre(1l);
-        for (Performance p: performances) { // форма записи для обхода коллекций
-            System.out.println("id: "+ p.getId() + " name: " + p.getName() );
-        }
-        ArrayList<Schedule> schedules = schedule.getDateByTP(1l, 4l);
-        for (Schedule s: schedules){
-            System.out.println("id: "+ s.getId() + " date: " + s.getDate());
-        }
-        ArrayList<SeatStatus> seatStatuses = seatStatus.getSeatstatusBySheduleId(3l);
-        for(SeatStatus s : seatStatuses){
-            System.out.println("id: " + s.getId() + " name: " + s.getName() + " price: " + s.getPrice() + " free: " + s.getFree());
-        }
-        Receipt receipt = new Receipt();
-        Date date = Date.valueOf("2020-11-12");
-        receipt.setDate( date);
-        receipt.setSumma(0l);
-        receipt = receiptDao.createNewReceipt(receipt);
+//        ArrayList<Theatre> allTheatres = schedule.getAllTheatres();
+//        for (int i = 0; i< allTheatres.size(); i++) {
+//            System.out.println("id: "+ allTheatres.get(i).getId() + " name: " + allTheatres.get(i).getName() );
+//        }
+//        ArrayList<Performance> performances = schedule.getPerformanceByTheatre(1l);
+//        for (Performance p: performances) { // форма записи для обхода коллекций
+//            System.out.println("id: "+ p.getId() + " name: " + p.getName() );
+//        }
+//        ArrayList<Schedule> schedules = schedule.getDateByTP(1l, 4l);
+//        for (Schedule s: schedules){
+//            System.out.println("id: "+ s.getId() + " date: " + s.getDate());
+//        }
+//        ArrayList<SeatStatus> seatStatuses = seatStatus.getSeatstatusBySheduleId(3l);
+//        for(SeatStatus s : seatStatuses){
+//            System.out.println("id: " + s.getId() + " name: " + s.getName() + " price: " + s.getPrice() + " free: " + s.getFree());
+//        }
+//        Receipt receipt = new Receipt();
+//        Date date = Date.valueOf("2020-11-12");
+//        receipt.setDate( date);
+//        receipt.setSumma(0l);
+//        receipt = receiptDao.createNewReceipt(receipt);
+//
+//        receipt = receiptDao.getReceiptById(receipt.getId());
+//        System.out.println(receipt);
+//        receipt.setSumma(400l);
+//        int check = receiptDao.updateReceipt(receipt);
+//
+//        ReceiptItem item = new ReceiptItem();
+//        item.setReceiptId(7l);
+//        item.setQuantity(0l);
+//        item.setSeatStatusId(8l);
+//        item.setSumma(0l);
+//        item = receiptItemDao.createNewReceiptItem(item);
+//        item.setQuantity(2l);
+//        item.setSumma(13l);
+//        System.out.println(item);
+//        int check2 = receiptItemDao.updateReceiptItem(item);
+//
+//        ReceiptDto receiptDto = new ReceiptDto();
 
-        receipt = receiptDao.getReceiptById(receipt.getId());
+        FullReceipt receipt = receiptDao.getFullReceipt(7l);
         System.out.println(receipt);
-        receipt.setSumma(400l);
-        int check = receiptDao.updateReceipt(receipt);
-
-        ReceiptItem item = new ReceiptItem();
-        item.setReceiptId(7l);
-        item.setQuantity(0l);
-        item.setSeatStatusId(8l);
-        item.setSumma(0l);
-        item = receiptItemDao.createNewReceiptItem(item);
-        item.setQuantity(2l);
-        item.setSumma(13l);
-        System.out.println(item);
-        int check2 = receiptItemDao.updateReceiptItem(item);
+        ReceiptDto receiptDto = converter.receiptToReceiptDto(receipt);
+        System.out.println(receiptDto);
+        service.countSales(receiptDto);
+        System.out.println(receiptDto);
     }
 }
+

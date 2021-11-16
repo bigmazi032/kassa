@@ -4,8 +4,13 @@ import ru.zinyakova.dao.*;
 import ru.zinyakova.entity.*;
 import ru.zinyakova.service.dto.*;
 
+import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
+
 import java.util.List;
+import java.util.concurrent.TransferQueue;
+
 
 public class BuyTicketServiceImpl implements BuyTicketService {
     private TheatreDao  theatreDao = new TheatreDao();
@@ -13,6 +18,8 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     private SeatStatusDao seatStatusDao = new SeatStatusDao();
     private ReceiptDao receiptDao = new ReceiptDao();
     private ReceiptItemDao receiptItemDao = new ReceiptItemDao();
+    private ReceiptReturnDao receiptReturnDao = new ReceiptReturnDao();
+    private ReceiptItemReturnDao receiptItemReturnDao = new ReceiptItemReturnDao();
 
     @Override
     public List<TheatreDto> getTheatreFromScheduler() {
@@ -102,7 +109,132 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         receiptItemDao.createNewReceiptItem(r);
         return receiptItem;
     }
+    @Override
+    public ReceiptDto countSales(ReceiptDto receiptDto){
+        Receipt r = new Receipt();
+        r.setId(receiptDto.getId());
+        r.setDate(receiptDto.getDate());
+        ArrayList<ReceiptItem> items = receiptItemDao.getItemsOfReceipt(r.getId());
+        long summ = 0;
+        int amount = items.size();
+        for(ReceiptItem item : items){
+            long quantity = item.getQuantity();
+            long price = seatStatusDao.getPriceBySeatStatusId(item.getSeatStatusId());
+            long itemSumm = (long)(quantity*price);
+            if (item.getQuantity()>10){
+                itemSumm = (long) (itemSumm * 0.9) ;
+            }
+            item.setSumma(itemSumm);
+            summ = summ+itemSumm;
+           // r.setSumma(summ);
+        }
+        if(amount>=2){
+            long summAll = 0;
+            ReceiptItem maxItem = items.get(0);
+                for(ReceiptItem i : items){
+                    if(i.getSumma() > maxItem.getSumma()) {
+                        maxItem = i;
+                    }
+                }
+               for (ReceiptItem i : items){
+                    if(i!= maxItem) {
+                        long summa = i.getSumma();
+                        i.setSumma((long) (summa * 0.9));
+                        summAll = summAll + i.getSumma();
+                    }
+               }
+               r.setSumma(summAll);
+            }
+        receiptDto.setSumma(r.getSumma());
+        return receiptDto;
+        }
+
+        @Override
+        public ReceiptReturnDto createReceiptReturn (ReceiptReturnDto receipt){
+            ReceiptReturn r = new ReceiptReturn();
+            r.setId(receipt.getId());
+            r.setSumma_return(receipt.getSumma_return());
+            r.setDate_return(receipt.getDate_return());
+            r.setReceipt_id(receipt.getReceipt_id());
+            receiptReturnDao.createReceiptReturn(r);
+            return receipt;
+        }
+
+        @Override
+        public ReceiptItemReturnDto createReceiptItemReturn(ReceiptItemReturnDto item){
+            ReceiptItemReturn i = new ReceiptItemReturn();
+            i.setId(item.getId());
+            i.setItem_id(item.getItem_id());
+            i.setSumma(item.getSumma());
+            i.setQuantity_return(item.getQuantity_return());
+            i.setReceipt_return_id(item.getReceipt_return_id());
+            receiptItemReturnDao.createNewReceiptItemReturn(i);
+            return item;
+        }
+
+        @Override
+        public ReceiptReturnDto countSummaReturn ( ReceiptReturnDto receiptDto ){
+            ReceiptReturn receiptReturn = new ReceiptReturn();
+            receiptReturn.setId(receiptDto.getId());
+            ArrayList<ReceiptItemReturn> items = receiptItemReturnDao.getItemsReturnOfReceipt(receiptReturn.getId());
+            Long prevReceiptId = receiptReturn.getReceipt_id();
+            Receipt prevReceipt = receiptDao.getReceiptById(prevReceiptId);
+            ArrayList<ReceiptItem> prevItems = receiptItemDao.getItemsOfReceipt(prevReceiptId);
+            long prevItemAmount = prevItems.size();
+            long countItemsReturn = items.size();
+            long newItemsAmount = prevItemAmount - countItemsReturn;
+            long allSumma = 0;
+            for (ReceiptItemReturn i: items) {
+                long newQuantity = 0;
+                long prevItemId = receiptItemReturnDao.getPrevItemById(i.getId());
+                ReceiptItem prevItem = receiptItemDao.getReceiptItemById(prevItemId);
+                long prevQuantity = prevItem.getQuantity();
+                newQuantity = prevQuantity - i.getQuantity_return();
+                long price = seatStatusDao.getPriceBySeatStatusId(prevItem.getSeatStatusId());
+                long newSummOfItem = price * newQuantity;
+                if (newQuantity > 10) {
+                    newSummOfItem = (long) (newSummOfItem * 0.9);
+                }
+                long returnSumm = prevItem.getSumma() - newSummOfItem;
+                allSumma = allSumma + returnSumm;
+                long summReturn = prevReceipt.getSumma() - allSumma;
+                Date playDate = seatStatusDao.getDateBySeatStatusId(prevItem.getSeatStatusId());
+                LocalDate playLocalDate = playDate.toLocalDate();
+                if (receiptReturn.getDate_return().toLocalDate().isAfter(playLocalDate.minusDays(1))) {
+                    receiptDto.setSumma_return(summReturn / 2);
+                }
+            }
+            if (newItemsAmount >= 2){
+                long summAll = 0;
+                ReceiptItem maxItem = prevItems.get(0);
+                for(ReceiptItem i : prevItems){
+                    if(i.getSumma() > maxItem.getSumma()) {
+                        maxItem = i;
+                    }
+                }
+                for (ReceiptItem i : prevItems){
+                    if(i!= maxItem) {
+                        long summa = i.getSumma();
+                        i.setSumma((long) (summa * 0.9));
+                        summAll = summAll + i.getSumma();
+                    }
+                }
+                long summReturn = prevReceipt.getSumma() - summAll;
+                receiptDto.setSumma_return(summReturn);
+            }
+            return receiptDto;
+        }
+
+
+
 }
+
+
+
+
+
+
+
 
 // вопросы: в последних двух при создании мы возвращаем то  же что и взяли на вход (не создается ничего нового и тд просто вызвали метод из дао слоя)
 // в  getSeatStatuses не дописала так как не работает консоль с запросами
