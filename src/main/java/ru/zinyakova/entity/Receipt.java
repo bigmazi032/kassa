@@ -5,7 +5,8 @@ import lombok.Data;
 import java.sql.Date;
 
 @Data
-public class Schedule {
+public class Receipt {
     private Long id;
     private Date date;
+    private Long summa;
 }
