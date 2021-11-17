@@ -1,5 +1,6 @@
 package ru.zinyakova.kassa.dao;
 
+import ru.zinyakova.kassa.entity.SeatCategory;
 import ru.zinyakova.kassa.entity.SeatStatus;
 
 
@@ -11,34 +12,27 @@ public class SeatStatusDao {
     private static DataSource dataSource = DaoFactory.getDataSource();
 
     //показать категории мест, цены и свободные места для данной
-    private final String SHOW_SEAT_CATEGORY_SQL = "SELECT s.id    id,\n" +
-            "       sc.name name,\n" +
-            "       s.price price,\n" +
-            "       s.free  free\n" +
-            "FROM seats_status s\n" +
-            "         JOIN seat_category sc on s.seat_category_id = sc.id\n" +
-            "         JOIN schedule s2 on s.schedule_id = s2.id\n" +
-            "         JOIN theatre t on s2.theatre_id = t.id\n" +
-            "         JOIN performance p on p.id = s2.performance_id\n" +
-            "WHERE s2.id = ?\n";
+    private final String SHOW_SEAT_CATEGORY_SQL = "SELECT\n" +
+            "       sc.id id,\n" +
+            "       sc.name name\n" +
+            "FROM seats_status ss\n" +
+            "         JOIN seat_category sc on ss.seat_category_id = sc.id\n" +
+            "         JOIN schedule s on ss.schedule_id = s.id\n" +
+            "WHERE s.id = ?";
 
-    public ArrayList<SeatStatus> getSeatstatusBySheduleId(Long idD) {
+    public ArrayList<SeatCategory> getSeatCategoriesBySchedulerId(Long idD) {
         try (Connection connection = dataSource.getConnection()) {
             PreparedStatement preparedStatement = connection.prepareStatement(SHOW_SEAT_CATEGORY_SQL);
             preparedStatement.setLong(1, idD);
             ResultSet resultSet = preparedStatement.executeQuery();
             // создаем структуру ArrayList
-            ArrayList<SeatStatus> seats = new ArrayList<>();
+            ArrayList<SeatCategory> seats = new ArrayList<>();
             while (resultSet.next()) {
                 String nameS = resultSet.getString("name");
                 Long id = resultSet.getLong("id");
-                Long price = resultSet.getLong("price");
-                Long free = resultSet.getLong("free");
-                SeatStatus s = new SeatStatus();
+                SeatCategory s = new SeatCategory();
                 s.setName(nameS);
                 s.setId(id);
-                s.setPrice(price);
-                s.setFree(free);
                 seats.add(s);
             }
             return seats;
@@ -63,17 +57,20 @@ public class SeatStatusDao {
             preparedStatement.setLong(1, idSchedule);
             preparedStatement.setLong(2, idSeatCategory);
             ResultSet resultSet = preparedStatement.executeQuery();
-            SeatStatus seatStatus = new SeatStatus();
-            seatStatus.setFree(resultSet.getLong("free"));
-            seatStatus.setId(resultSet.getLong("id"));
-            seatStatus.setTotal(resultSet.getLong("total"));
-            seatStatus.setPrice(resultSet.getLong("price"));
-            seatStatus.setName(resultSet.getString("name"));
+            SeatStatus seatStatus = null;
+            while (resultSet.next()) {
+                seatStatus = new SeatStatus();
+                seatStatus.setFree(resultSet.getLong("free"));
+                seatStatus.setId(resultSet.getLong("id"));
+                seatStatus.setTotal(resultSet.getLong("total"));
+                seatStatus.setPrice(resultSet.getLong("price"));
+            }
             return seatStatus;
         } catch (SQLException e) {
             throw new IllegalStateException("Error during execution.", e);
         }
     }
+
     private final String PRICE_BY_SEAT_STATUS_ID_SQL = "select s.price price\n" +
             "from seats_status s\n" +
             "where s.id = ?";
@@ -111,5 +108,24 @@ public class SeatStatusDao {
 
 
 
+    }
+
+    private String UPDATE_FREE_SEATS_SQL = "UPDATE seats_status\n" +
+            "SET free = ?\n" +
+            "WHERE id = ?";
+
+    public int updateFreeSeatsInSeatStaus(SeatStatus seatStatus) {
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_FREE_SEATS_SQL);
+            preparedStatement.setLong(1, seatStatus.getFree());
+            preparedStatement.setLong(2, seatStatus.getId());
+            int affectedRows = preparedStatement.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Updating seatStatus failed, no rows affected.");
+            }
+            return affectedRows;
+        } catch (SQLException e) {
+            throw new IllegalStateException("Error during execution.", e);
+        }
     }
 }

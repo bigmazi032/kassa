@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ForKateController {
+public class CashBoxController {
 
     private BuyTicketServiceImpl buyTicketServiceImpl = new BuyTicketServiceImpl();
     private ReceiptDto receipt;
@@ -379,6 +379,7 @@ public class ForKateController {
         long quantitySeat = Long.parseLong(quantitySeatsFld.getText());
         receiptItem.setQuantitySeats(quantitySeat);
         receiptItem.setSum(quantitySeat * currentSeat.getPrice());
+        receiptItem.setSumWithDiscount(BigDecimal.ZERO);
         receiptItem = buyTicketServiceImpl.createReceiptItem(receiptItem);
         receipt.addReceiptItem(receiptItem);
         System.out.println(receipt);
@@ -521,12 +522,15 @@ public class ForKateController {
         }
         returnItemDtoList = new ArrayList<>();
         for (ReturnTicketField returnTicketField : returnTicketFields) {
-            ReceiptItemDto receiptItemDto = returnTicketField.getReceiptItemDto();
-            ReturnItemDto returnItemDto = new ReturnItemDto();
-            returnItemDto.setReceiptItemDto(receiptItemDto);
-            returnItemDto.setReturnQuantity(returnTicketField.getQuantityToReturn());
-            // отправляем на создание в чеке новой записи о возврате
-            returnItemDtoList.add(returnItemDto);
+            Long quantityToReturn = returnTicketField.getQuantityToReturn();
+            if (quantityToReturn > 0 ) {
+                ReceiptItemDto receiptItemDto = returnTicketField.getReceiptItemDto();
+                ReturnItemDto returnItemDto = new ReturnItemDto();
+                returnItemDto.setReceiptItemDto(receiptItemDto);
+                returnItemDto.setReturnQuantity(quantityToReturn);
+                // отправляем на создание в чеке новой записи о возврате
+                returnItemDtoList.add(returnItemDto);
+            }
         }
         BigDecimal totalSumToReturn = buyTicketServiceImpl.calculateSumToReturn(receiptForReturn, returnItemDtoList);
         System.out.println(totalSumToReturn);

@@ -51,7 +51,7 @@
 
 <!--<?import com.example.demo.DigitTextField?>-->
 
-<VBox prefHeight="644.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.ForKateController">
+<VBox prefHeight="644.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.zinyakova.kassa.view.CashBoxController">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -113,7 +113,7 @@
                   <Button fx:id="handleShoppingBtn" layoutX="618.0" layoutY="40.0" mnemonicParsing="false" onAction="#handleShopping" prefHeight="25.0" prefWidth="129.0" text="Закрыть чек" />
                </children>
             </Pane>
-            <Pane fx:id="schedulerPn" prefHeight="770.0" prefWidth="800.0" visible="false">
+            <Pane fx:id="schedulerPn" prefHeight="770.0" prefWidth="800.0">
                <children>
                   <Text layoutX="267.0" layoutY="293.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Здесь будет афиша" wrappingWidth="307.13671875">
                      <font>
@@ -122,7 +122,7 @@
                   </Text>
                </children>
             </Pane>
-            <Pane fx:id="returnTicketPn" prefHeight="569.0" prefWidth="800.0">
+            <Pane fx:id="returnTicketPn" prefHeight="569.0" prefWidth="800.0" visible="false">
                <children>
                   <Label layoutX="14.0" layoutY="14.0" prefHeight="17.0" prefWidth="144.0" text="Введите номер чека" />
                   <TextField fx:id="receiptIdTxtFld" layoutX="183.0" layoutY="10.0" prefHeight="25.0" prefWidth="214.0" />

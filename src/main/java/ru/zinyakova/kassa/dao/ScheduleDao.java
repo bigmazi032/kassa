@@ -13,9 +13,12 @@ public class ScheduleDao {
 
 
     // показать список театров
-    private final String SHOW_THEATRES_SQL = "SELECT t.id id,\n" +
-            "       t.name name\n" +
-            "FROM theatre t";
+    private final String SHOW_THEATRES_SQL = "SELECT DISTINCT\n" +
+            "    t.id theatre_id,\n" +
+            "    t.name theatre_name\n" +
+            "FROM\n" +
+            "    schedule s\n" +
+            "    JOIN theatre t on s.theatre_id = t.id";
 
     public ArrayList<Theatre> getAllTheatres () {
         try (Connection connection = dataSource.getConnection()) {
@@ -24,8 +27,8 @@ public class ScheduleDao {
             // создаем структуру ArrayList
             ArrayList<Theatre> theatres = new ArrayList<>();
             while (resultSet.next()) {
-                Long id = resultSet.getLong("id");
-                String nameTheatre = resultSet.getString("name");
+                Long id = resultSet.getLong("theatre_id");
+                String nameTheatre = resultSet.getString("theatre_name");
                 Theatre theatre = new Theatre();
                 theatre.setId(id);
                 theatre.setName(nameTheatre);

@@ -3,6 +3,7 @@ package ru.zinyakova.kassa.dao;
 import ru.zinyakova.kassa.entity.*;
 
 import javax.sql.DataSource;
+import java.math.BigDecimal;
 import java.sql.*;
 
 
@@ -17,7 +18,7 @@ public class ReceiptDao {
         try(Connection connection = dataSource.getConnection()) {
             PreparedStatement preparedStatement = connection.prepareStatement(CREATE_RECEIPT_SQL, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setDate(1, r.getDate());
-            preparedStatement.setLong(2, r.getSumma());
+            preparedStatement.setBigDecimal(2, r.getSumma());
             int affectedRows = preparedStatement.executeUpdate();
             if (affectedRows == 0) {
                 throw new SQLException("Creating theatre failed, no rows affected.");
@@ -49,7 +50,7 @@ public class ReceiptDao {
             while (resultSet.next()) {
                 Long rId = resultSet.getLong("id");
                 Date rDate= resultSet.getDate("date");
-                Long sum = resultSet.getLong("sum");
+                BigDecimal sum = resultSet.getBigDecimal("sum");
                 receipt = new Receipt();
                 receipt.setId(rId);
                 receipt.setDate(rDate);
@@ -65,10 +66,10 @@ public class ReceiptDao {
             "SET summa = ?\n" +
             "WHERE receipt.id = ?";
 
-    public int updateReceipt(Receipt receipt){
+    public int updateReceiptSum(Receipt receipt){
         try(Connection connection = dataSource.getConnection()){
             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_RECEIPT_SQL);
-            preparedStatement.setLong(1,receipt.getSumma());
+            preparedStatement.setBigDecimal(1,receipt.getSumma());
             preparedStatement.setLong(2,receipt.getId());
             int affectedRows = preparedStatement.executeUpdate();
             if (affectedRows == 0){
@@ -80,8 +81,35 @@ public class ReceiptDao {
         }
     }
 
+//    private String GET_FULL_RECEIPT_INFO_BY_ID_SQL = "SELECT r.summa receipt_summa,\n" +
+//            "       it.id item_id,\n" +
+//            "       r.id receipt_id,\n" +
+//            "       r.date datePurchase,\n" +
+//            "       s.id schedule_id,\n" +
+//            "       ss.id seat_status_id,\n" +
+//            "       t.id theatre_id,\n" +
+//            "       t.name theatre,\n" +
+//            "       p.id play_id,\n" +
+//            "       p.name performance,\n" +
+//            "       s.date performanceDate,\n" +
+//            "       sc.id seat_category_id,\n" +
+//            "       sc.name seat,\n" +
+//            "       it.quantity quantity,\n" +
+//            "       ss.price price,\n" +
+//            "        ss.total total,\n" +
+//            "       ss.free,\n" +
+//            "       it.summa summa\n" +
+//            "FROM receipt_item it\n" +
+//            "JOIN receipt r on r.id = it.receipt_id\n" +
+//            "JOIN seats_status ss on it.seats_status_id = ss.id\n" +
+//            "JOIN seat_category sc on ss.seat_category_id = sc.id\n" +
+//            "JOIN schedule s on s.id = ss.schedule_id\n" +
+//            "JOIN performance p on p.id = s.performance_id\n" +
+//            "JOIN theatre t on t.id = s.theatre_id\n" +
+//            "WHERE receipt_id = ?";
+
     private String GET_FULL_RECEIPT_INFO_BY_ID_SQL = "SELECT r.summa receipt_summa,\n" +
-            "       it.id item_id,\n" +
+            "       MIN(it.id) item_id,\n" +
             "       r.id receipt_id,\n" +
             "       r.date datePurchase,\n" +
             "       s.id schedule_id,\n" +
@@ -93,19 +121,20 @@ public class ReceiptDao {
             "       s.date performanceDate,\n" +
             "       sc.id seat_category_id,\n" +
             "       sc.name seat,\n" +
-            "       it.quantity quantity,\n" +
+            "       SUM(it.quantity) quantity,\n" +
             "       ss.price price,\n" +
-            "        ss.total total,\n" +
+            "       ss.total total,\n" +
             "       ss.free,\n" +
-            "       it.summa summa\n" +
+            "       SUM(it.summa) summa\n" +
             "FROM receipt_item it\n" +
-            "JOIN receipt r on r.id = it.receipt_id\n" +
-            "JOIN seats_status ss on it.seats_status_id = ss.id\n" +
-            "JOIN seat_category sc on ss.seat_category_id = sc.id\n" +
-            "JOIN schedule s on s.id = ss.schedule_id\n" +
-            "JOIN performance p on p.id = s.performance_id\n" +
-            "JOIN theatre t on t.id = s.theatre_id\n" +
-            "WHERE receipt_id = ?";
+            "         JOIN receipt r on r.id = it.receipt_id\n" +
+            "         JOIN seats_status ss on it.seats_status_id = ss.id\n" +
+            "         JOIN seat_category sc on ss.seat_category_id = sc.id\n" +
+            "         JOIN schedule s on s.id = ss.schedule_id\n" +
+            "         JOIN performance p on p.id = s.performance_id\n" +
+            "         JOIN theatre t on t.id = s.theatre_id\n" +
+            "WHERE receipt_id = ?\n" +
+            "GROUP BY seat_status_id";
 
     public FullReceipt getFullReceipt (Long receiptId){
         try (Connection connection = dataSource.getConnection()) {
@@ -147,7 +176,7 @@ public class ReceiptDao {
                 receipt.setId(resultSet.getLong("receipt_id"));
                 receipt.getItems().add(item);
                 receipt.setDate(resultSet.getDate("datePurchase"));
-                receipt.setSumma(resultSet.getLong("receipt_summa"));
+                receipt.setSumma(resultSet.getBigDecimal("receipt_summa"));
             }
             return receipt;
         }catch (SQLException e) {

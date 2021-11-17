@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 
 @Data
@@ -14,7 +15,7 @@ public class SchedulerDto {
     private Long id;
     private TheatreDto theatre;
     private PerformanceDto performance;
-    private Date date;
+    private LocalDate date;
 
 
 }

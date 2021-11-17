@@ -3,6 +3,7 @@ package ru.zinyakova.kassa.dao;
 import ru.zinyakova.kassa.entity.ReceiptItem;
 
 import javax.sql.DataSource;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -19,7 +20,7 @@ public class ReceiptItemDao {
             preparedStatement.setLong(1, item.getReceiptId());
             preparedStatement.setLong(2, item.getSeatStatusId());
             preparedStatement.setLong(3, item.getQuantity());
-            preparedStatement.setLong(4, item.getSumma());
+            preparedStatement.setBigDecimal(4, item.getSumma());
             int affectedRows = preparedStatement.executeUpdate();
             if (affectedRows == 0) {
                 throw new SQLException("Creating theatre failed, no rows affected.");
@@ -54,7 +55,7 @@ public class ReceiptItemDao {
                 Long rId = resultSet.getLong("id");
                 Long seatId = resultSet.getLong("seatStatus");
                 Long quantity = resultSet.getLong("quantity");
-                Long summa = resultSet.getLong("summa");
+                BigDecimal summa = resultSet.getBigDecimal("summa");
                 item = new ReceiptItem();
                 item.setId(rId);
                 item.setSeatStatusId(seatId);
@@ -67,16 +68,15 @@ public class ReceiptItemDao {
         }
     }
 
-    private final String UPDATE_RECEIPT_ITEM_SQL = "UPDATE receipt_item i\n" +
-            "SET quantity = ?, summa = ?\n" +
+    private final String UPDATE_RECEIPT_ITEM_SUM_SQL = "UPDATE receipt_item i\n" +
+            "SET summa = ?\n" +
             "WHERE i.id = ?";
 
     public int updateReceiptItem(ReceiptItem item) {
         try (Connection connection = dataSource.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_RECEIPT_ITEM_SQL);
-            preparedStatement.setLong(1, item.getQuantity());
-            preparedStatement.setLong(2, item.getSumma());
-            preparedStatement.setLong(3, item.getId());
+            PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_RECEIPT_ITEM_SUM_SQL);
+            preparedStatement.setBigDecimal(1, item.getSumma());
+            preparedStatement.setLong(2, item.getId());
             int affectedRows = preparedStatement.executeUpdate();
             if (affectedRows == 0) {
                 throw new SQLException("Updating receipt failed, no rows affected.");
@@ -104,7 +104,7 @@ public class ReceiptItemDao {
                 ReceiptItem i = new ReceiptItem();
                 i.setReceiptId(resultSet.getLong("id"));
                 i.setSeatStatusId(resultSet.getLong("seat"));
-                i.setSumma(resultSet.getLong("summa"));
+                i.setSumma(resultSet.getBigDecimal("summa"));
                 i.setQuantity(resultSet.getLong("quantity"));
                 items.add(i);
             }

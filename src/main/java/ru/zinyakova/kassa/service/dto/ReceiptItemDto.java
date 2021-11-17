@@ -3,6 +3,7 @@ package ru.zinyakova.kassa.service.dto;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
 @Data
 public class ReceiptItemDto {
@@ -12,4 +13,5 @@ public class ReceiptItemDto {
     private Long quantitySeats;
     private Long sum;
     private BigDecimal sumWithDiscount;
+    private ArrayList<Integer> discounts = new ArrayList<>();
 }

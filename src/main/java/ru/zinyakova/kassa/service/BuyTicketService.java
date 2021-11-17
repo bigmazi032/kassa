@@ -14,13 +14,7 @@ public interface BuyTicketService {
     SeatStatusDto getSeatStatuses (SchedulerDto scheduler, SeatCategoryDto seatCategory);
     ReceiptDto createReceipt(ReceiptDto receiptDto);
     ReceiptItemDto createReceiptItem (ReceiptItemDto receiptItem);
-    ReceiptDto countSales (ReceiptDto receiptDto);
-    public ReceiptReturnDto createReceiptReturn (ReceiptReturnDto receipt);
-    public ReceiptItemReturnDto createReceiptItemReturn(ReceiptItemReturnDto item);
-    public ReceiptReturnDto countSummaReturn ( ReceiptReturnDto receiptDto );
-
     ReceiptDto closeReceipt(ReceiptDto receipt);
-
-    ReceiptDto getReceiptById(long parseLong);
+    ReceiptDto getReceiptById(Long id);
     BigDecimal calculateSumToReturn(ReceiptDto receiptForReturn, List<ReturnItemDto> returnItemDtoList);
 }

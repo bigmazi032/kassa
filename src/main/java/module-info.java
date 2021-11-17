@@ -16,5 +16,7 @@ module ru.zinyakova.kassa {
     opens ru.zinyakova.kassa to javafx.fxml;
     exports ru.zinyakova.kassa;
     exports ru.zinyakova.kassa.service.dto;
+    exports ru.zinyakova.kassa.view;
     opens ru.zinyakova.kassa.service.dto to javafx.fxml;
+    opens ru.zinyakova.kassa.view to javafx.fxml;
 }
