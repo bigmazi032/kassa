@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Copyright (c) 2015, 2019, Gluon and/or its affiliates.
+  All rights reserved. Use is subject to license terms.
+
+  This file is available and licensed under the following license:
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+
+  - Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+  - Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in
+    the documentation and/or other materials provided with the distribution.
+  - Neither the name of Oracle Corporation nor the names of its
+    contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<!--<?import com.example.demo.DigitTextField?>-->
+
+<VBox prefHeight="644.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.ForKateController">
+  <children>
+    <MenuBar VBox.vgrow="NEVER">
+      <menus>
+            <Menu mnemonicParsing="false" text="Афиша">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#selectSchedulerPn" text="Показать афишу" />
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Билеты">
+              <items>
+                <MenuItem id="showPaneBtn" fx:id="showPaneBtn" mnemonicParsing="false" onAction="#selectByTicketPn" text="Купить билет" />
+                  <MenuItem id="showPaneLbl" fx:id="showPaneLbl" mnemonicParsing="false" onAction="#selectReturnTicketPn" text="Вернуть билет" />
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Отчеты">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Action 1" />
+              </items>
+            </Menu>
+      </menus>
+    </MenuBar>
+      <StackPane fx:id="stackPane" alignment="TOP_LEFT" prefHeight="706.0" prefWidth="800.0">
+         <children>
+            <Pane fx:id="buyTicketPn" prefHeight="771.0" prefWidth="800.0" visible="false">
+               <children>
+                  <Label layoutX="14.0" layoutY="14.0" text="Театры" />
+                  <ComboBox fx:id="theatreCmb" disable="true" layoutX="146.0" layoutY="10.0" onAction="#selectTheatre" prefHeight="25.0" prefWidth="387.0" />
+                  <Label layoutX="14.0" layoutY="44.0" text="Представления" />
+                  <Label layoutX="14.0" layoutY="75.0" text="Даты" />
+                  <Label layoutX="14.0" layoutY="104.0" text="Категория мест" />
+                  <ComboBox fx:id="performanceCmb" disable="true" layoutX="146.0" layoutY="40.0" onAction="#selectPerformance" prefHeight="25.0" prefWidth="387.0" />
+                  <ComboBox fx:id="dateCmb" disable="true" layoutX="146.0" layoutY="71.0" onAction="#selectDate" prefHeight="25.0" prefWidth="387.0" />
+                  <ComboBox fx:id="categorySeatCmb" disable="true" layoutX="146.0" layoutY="100.0" onAction="#selectSeatCategory" prefHeight="25.0" prefWidth="387.0" />
+                  <Label layoutX="14.0" layoutY="136.0" text="Свободно мест" />
+                  <Label fx:id="freeSeatsLbl" layoutX="146.0" layoutY="136.0" text="-" />
+                  <Label layoutX="14.0" layoutY="171.0" text="Цена" />
+                  <Label fx:id="priceLbl" layoutX="146.0" layoutY="171.0" text="-" />
+                  <TextField fx:id="quantitySeatsFld" disable="true" layoutX="146.0" layoutY="207.0" onKeyTyped="#onQuantitySeatsFldFill" prefHeight="25.0" prefWidth="214.0" />
+                  <Label layoutX="14.0" layoutY="211.0" text="Количество" />
+                  <Button fx:id="buyBtn" disable="true" layoutX="396.0" layoutY="207.0" mnemonicParsing="false" onAction="#buyTicket" prefHeight="25.0" prefWidth="137.0" text="Добавить в чек" />
+                  <Separator layoutX="14.0" layoutY="250.0" prefHeight="3.0" prefWidth="773.0" />
+                  <Separator layoutX="14.0" layoutY="289.0" prefHeight="3.0" prefWidth="773.0" />
+                  <Label layoutX="14.0" layoutY="264.0" text="Итого" />
+                  <Label fx:id="summaryPrice" layoutX="56.0" layoutY="264.0" prefHeight="17.0" prefWidth="720.0" />
+                  <ScrollPane layoutY="308.0">
+                     <content>
+                        <TableView fx:id="shoppingTbl" prefHeight="305.0" prefWidth="785.0">
+                          <columns>
+                            <TableColumn fx:id="theatreNameClmn" editable="false" prefWidth="99.0" text="Театр" />
+                            <TableColumn fx:id="performanceNameClmn" editable="false" prefWidth="119.0" text="Представление" />
+                              <TableColumn fx:id="dateClmn" editable="false" minWidth="8.333328247070312" prefWidth="80.6666259765625" text="Дата" />
+                              <TableColumn fx:id="seatCategoryNameClmn" editable="false" prefWidth="79.33331298828125" text="Категория места" />
+                              <TableColumn fx:id="quantityClmn" editable="false" prefWidth="82.0" text="Количество" />
+                              <TableColumn fx:id="summClmn" editable="false" prefWidth="95.33331298828125" text="Сумма без скидки" />
+                          </columns>
+                        </TableView>
+                     </content>
+                  </ScrollPane>
+                  <Button fx:id="handleShoppingBtn" layoutX="618.0" layoutY="40.0" mnemonicParsing="false" onAction="#handleShopping" prefHeight="25.0" prefWidth="129.0" text="Закрыть чек" />
+               </children>
+            </Pane>
+            <Pane fx:id="schedulerPn" prefHeight="770.0" prefWidth="800.0" visible="false">
+               <children>
+                  <Text layoutX="267.0" layoutY="293.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Здесь будет афиша" wrappingWidth="307.13671875">
+                     <font>
+                        <Font size="34.0" />
+                     </font>
+                  </Text>
+               </children>
+            </Pane>
+            <Pane fx:id="returnTicketPn" prefHeight="569.0" prefWidth="800.0">
+               <children>
+                  <Label layoutX="14.0" layoutY="14.0" prefHeight="17.0" prefWidth="144.0" text="Введите номер чека" />
+                  <TextField fx:id="receiptIdTxtFld" layoutX="183.0" layoutY="10.0" prefHeight="25.0" prefWidth="214.0" />
+                  <Button layoutX="435.0" layoutY="10.0" mnemonicParsing="false" onAction="#searchReceipt" prefHeight="25.0" prefWidth="112.0" text="Искать" />
+                  <VBox fx:id="listTicketVbx" layoutY="136.0" prefHeight="483.0" prefWidth="800.0">
+                     <children>
+                        <Pane prefHeight="31.0" prefWidth="800.0">
+                           <children>
+                              <Label layoutX="698.0" layoutY="6.0" prefHeight="17.0" prefWidth="64.0" text="К возврату" />
+                              <Label layoutX="83.0" layoutY="6.0" prefHeight="17.0" prefWidth="586.0" text="Билет" />
+                              <Label layoutX="14.0" layoutY="9.0" text="№ п/п" />
+                           </children>
+                        </Pane>
+                     </children>
+                  </VBox>
+                  <Button layoutX="573.0" layoutY="10.0" mnemonicParsing="false" onAction="#issueReturn" prefHeight="25.0" prefWidth="129.0" text="Оформить возврат" />
+                  <Label layoutX="21.0" layoutY="71.0" text="К возрату" />
+                  <Label fx:id="returnSumLbl" layoutX="97.0" layoutY="71.0" prefHeight="17.0" prefWidth="537.0" text="0" />
+               </children>
+            </Pane>
+         </children>
+      </StackPane>
+  </children>
+</VBox>
