@@ -5,3 +5,4 @@ DROP TABLE seat_category;
 DROP TABLE schedule;
 DROP TABLE performance;
 DROP TABLE theatre;
+

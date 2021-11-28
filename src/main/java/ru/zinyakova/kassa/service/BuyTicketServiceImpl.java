@@ -277,6 +277,10 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         }
         return totalSumToReturn;
     }
+
+    public ArrayList<SimpleSchedule> getScheduleByPerfomance (String playNameDto){
+        return scheduleDao.getScheduleByPerfomance(playNameDto);
+    }
 }
 
 

@@ -2,6 +2,7 @@ package ru.zinyakova.kassa.dao;
 import ru.zinyakova.kassa.entity.Performance;
 import ru.zinyakova.kassa.entity.Schedule;
 import ru.zinyakova.kassa.entity.Theatre;
+import ru.zinyakova.kassa.service.dto.SimpleSchedule;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -88,6 +89,31 @@ public class ScheduleDao {
                 Schedule s = new Schedule();
                 s.setId(resultSet.getLong("id"));
                 s.setDate(resultSet.getDate("date"));
+                schedules.add(s);
+            }
+            return  schedules;
+        }catch (SQLException e) {
+            throw new IllegalStateException("Error during execution.", e);
+        }
+    }
+
+    private final String SHOW_DATE_THEATRE_BY_PLAY_SQL = "SELECT t.name   name,\n" +
+            "       s.date date\n" +
+            "FROM schedule s\n" +
+            "         JOIN theatre t on s.theatre_id = t.id\n" +
+            "         JOIN performance p on s.performance_id = p.id\n" +
+            "WHERE upper(p.name) LIKE ?";
+
+    public ArrayList<SimpleSchedule> getScheduleByPerfomance (String playName){
+        try(Connection connection = dataSource.getConnection()){
+            PreparedStatement preparedStatement = connection.prepareStatement(SHOW_DATE_THEATRE_BY_PLAY_SQL);
+            preparedStatement.setString(1, "%" + playName + "%");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            ArrayList<SimpleSchedule> schedules = new ArrayList<>();
+            while(resultSet.next()){
+                SimpleSchedule s = new SimpleSchedule();
+                s.setTheareName(resultSet.getString("name"));
+                s.setDate(resultSet.getDate("date").toLocalDate());
                 schedules.add(s);
             }
             return  schedules;

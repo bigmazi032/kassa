@@ -77,3 +77,5 @@ CREATE TABLE receipt_item
 #  CONSTRAINT receipt_item_return_receipt_return_fk
 #      FOREIGN KEY (receipt_return_id) REFERENCES receipt_return (id)
 # );
+
+

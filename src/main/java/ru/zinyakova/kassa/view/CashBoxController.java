@@ -12,6 +12,10 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import ru.zinyakova.kassa.dao.ScheduleDao;
+import ru.zinyakova.kassa.dao.SeatStatusDao;
+import ru.zinyakova.kassa.dao.TheatreDao;
+import ru.zinyakova.kassa.entity.Schedule;
 import ru.zinyakova.kassa.service.BuyTicketServiceImpl;
 import ru.zinyakova.kassa.service.dto.*;
 
@@ -26,6 +30,7 @@ public class CashBoxController {
     private BuyTicketServiceImpl buyTicketServiceImpl = new BuyTicketServiceImpl();
     private ReceiptDto receipt;
     private boolean isShoppingStarted = false;
+    private SeatStatusDao seatStatusDao = new SeatStatusDao();
 
     @FXML
     private StackPane stackPane;
@@ -97,6 +102,14 @@ public class CashBoxController {
     public void initialize() {
         System.out.println("инициализируем таблицу");
         initTable();
+    }
+
+    @FXML
+    private void showSchedule(){
+        stackPane.setVisible(true);
+        SchedulerDto schedule = new SchedulerDto();
+        ScheduleDao sc = new ScheduleDao();
+        sc.getAllTheatres();
     }
 
     private void initTable() {
@@ -523,7 +536,7 @@ public class CashBoxController {
         returnItemDtoList = new ArrayList<>();
         for (ReturnTicketField returnTicketField : returnTicketFields) {
             Long quantityToReturn = returnTicketField.getQuantityToReturn();
-            if (quantityToReturn > 0 ) {
+            if (quantityToReturn > 0) {
                 ReceiptItemDto receiptItemDto = returnTicketField.getReceiptItemDto();
                 ReturnItemDto returnItemDto = new ReturnItemDto();
                 returnItemDto.setReceiptItemDto(receiptItemDto);
@@ -536,5 +549,29 @@ public class CashBoxController {
         System.out.println(totalSumToReturn);
         returnSumLbl.setText(totalSumToReturn.toString());
     }
+
+    /// my test play
+    @FXML
+    private TextField searchPlayTxtFld;
+    @FXML
+    private Button searchPlayBtn;
+    @FXML
+    private VBox listPlayVbx;
+    @FXML
+    protected void onSearchPlayBtnClick (){
+        listPlayVbx.getChildren().clear();
+        String playName = searchPlayTxtFld.getText();
+        ArrayList<SimpleSchedule> scheduleByPerfomance = buyTicketServiceImpl.getScheduleByPerfomance(playName);
+       for(SimpleSchedule s: scheduleByPerfomance) {
+           Label label = new Label();
+           label.setText(s.getTheareName() + "  " + s.getDate());
+           label.setLayoutX(20);
+           Pane panel = new Pane();
+           panel.getChildren().add(label);
+           listPlayVbx.getChildren().add(panel);
+
+       }
+
+    };
 
 }

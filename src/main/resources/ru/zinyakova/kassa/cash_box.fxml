@@ -46,8 +46,6 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
 
 <!--<?import com.example.demo.DigitTextField?>-->
 
@@ -115,11 +113,18 @@
             </Pane>
             <Pane fx:id="schedulerPn" prefHeight="770.0" prefWidth="800.0">
                <children>
-                  <Text layoutX="267.0" layoutY="293.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Здесь будет афиша" wrappingWidth="307.13671875">
-                     <font>
-                        <Font size="34.0" />
-                     </font>
-                  </Text>
+                  <VBox layoutX="-2.0" layoutY="-1.0" prefHeight="619.0" prefWidth="773.0">
+                     <children>
+                        <Pane prefHeight="57.0" prefWidth="773.0">
+                           <children>
+                              <Label layoutX="43.0" layoutY="16.0" prefHeight="17.0" prefWidth="144.0" text="Введите представление" />
+                              <TextField fx:id="searchPlayTxtFld" layoutX="222.0" layoutY="12.0" prefHeight="25.0" prefWidth="329.0" />
+                              <Button fx:id="searchPlayBtn" layoutX="629.0" layoutY="12.0" mnemonicParsing="false" onAction="#onSearchPlayBtnClick" text="Найти" />
+                           </children>
+                        </Pane>
+                        <VBox fx:id="listPlayVbx" prefHeight="578.0" prefWidth="773.0" />
+                     </children>
+                  </VBox>
                </children>
             </Pane>
             <Pane fx:id="returnTicketPn" prefHeight="569.0" prefWidth="800.0" visible="false">

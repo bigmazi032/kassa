@@ -6,8 +6,8 @@ import java.sql.Date;
 
 @Data
 public class Schedule {
-    private Theatre theatre;
-    private Performance performance;
+    private Long theatre_id;
+    private Long performance_id;
     private Long id;
     private Date date;
 }

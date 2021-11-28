@@ -16,6 +16,4 @@ public class SchedulerDto {
     private TheatreDto theatre;
     private PerformanceDto performance;
     private LocalDate date;
-
-
 }

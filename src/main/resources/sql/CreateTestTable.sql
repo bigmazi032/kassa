@@ -1,0 +1,5 @@
+CREATE TABLE test_theatre
+(id INT PRIMARY KEY AUTO_INCREMENT,
+ name VARCHAR(50) UNIQUE,
+ manager VARCHAR(50)
+);

@@ -28,25 +28,25 @@ VALUES ('Гордость и Предубеждение');
 INSERT schedule(theatre_id, performance_id, date)
 VALUES ((SELECT id FROM theatre WHERE name = 'Большой театр'),
         ( SELECT id FROM performance WHERE name = 'Преступление и наказание'),
-        '2021-10-13'
+        '2021-12-13'
 );
 
 INSERT schedule(theatre_id, performance_id, date)
 VALUES ((SELECT id FROM theatre WHERE name = 'Малый театр'),
         ( SELECT id FROM performance WHERE name = 'Преступление и наказание'),
-        '2021-10-11'
+        '2021-12-11'
        );
 
 INSERT schedule(theatre_id, performance_id, date)
 VALUES ((SELECT id FROM theatre WHERE name = 'Большой театр'),
         ( SELECT id FROM performance WHERE name = 'Гордость и Предубеждение'),
-        '2021-10-05'
+        '2021-12-05'
        );
 
 INSERT schedule(theatre_id, performance_id, date)
 VALUES ((SELECT id FROM theatre WHERE name = 'Театр на Таганке'),
         ( SELECT id FROM performance WHERE name = 'Мастер и Маргаритта'),
-        '2021-10-22'
+        '2021-12-22'
        );
 
 
@@ -67,7 +67,7 @@ VALUES ( (SELECT s.id
                    JOIN performance p on p.id = s.performance_id
           WHERE t.name = 'Большой театр'
             AND p.name = 'Преступление и наказание'
-            And s.date = '2021-10-13' ),
+            And s.date = '2021-12-13' ),
         (SELECT id
          FROM seat_category
          WHERE name = 'Обычная'
@@ -81,7 +81,7 @@ VALUES ( (SELECT s.id
                    JOIN performance p on p.id = s.performance_id
           WHERE t.name = 'Большой театр'
             AND p.name = 'Преступление и наказание'
-            And s.date = '2021-10-13' ),
+            And s.date = '2021-12-13' ),
          (SELECT id
           FROM seat_category
           WHERE name = 'VIP'
@@ -96,7 +96,7 @@ VALUES ( (SELECT s.id
                    JOIN performance p on p.id = s.performance_id
           WHERE t.name = 'Малый театр'
             AND p.name = 'Преступление и наказание'
-            And s.date = '2021-10-11' ),
+            And s.date = '2021-12-11' ),
          (SELECT id
           FROM seat_category
           WHERE name = 'Обычная'
@@ -110,7 +110,7 @@ VALUES ( (SELECT s.id
                    JOIN performance p on p.id = s.performance_id
           WHERE t.name = 'Малый театр'
             AND p.name = 'Преступление и наказание'
-            And s.date = '2021-10-11' ),
+            And s.date = '2021-12-11' ),
          (SELECT id
           FROM seat_category
           WHERE name = 'VIP'
@@ -124,7 +124,7 @@ VALUES ( (SELECT s.id
                    JOIN performance p on p.id = s.performance_id
           WHERE t.name = 'Театр на Таганке'
             AND p.name = 'Мастер и Маргаритта'
-            And s.date = '2021-10-22' ),
+            And s.date = '2021-12-22' ),
          (SELECT id
           FROM seat_category
           WHERE name = 'Обычная'
@@ -138,7 +138,7 @@ VALUES ( (SELECT s.id
                    JOIN performance p on p.id = s.performance_id
           WHERE t.name = 'Театр на Таганке'
             AND p.name = 'Мастер и Маргаритта'
-            And s.date = '2021-10-22' ),
+            And s.date = '2021-12-22' ),
          (SELECT id
           FROM seat_category
           WHERE name = 'vip'
@@ -152,7 +152,7 @@ VALUES ( (SELECT s.id
                    JOIN performance p on p.id = s.performance_id
           WHERE t.name = 'Большой театр'
             AND p.name = 'Гордость и Предубеждение'
-            And s.date = '2021-10-05' ),
+            And s.date = '2021-12-05' ),
          (SELECT id
           FROM seat_category
           WHERE name = 'Обычная'
@@ -166,7 +166,7 @@ VALUES ( (SELECT s.id
                    JOIN performance p on p.id = s.performance_id
           WHERE t.name = 'Большой театр'
             AND p.name = 'Гордость и Предубеждение'
-            And s.date = '2021-10-05' ),
+            And s.date = '2021-12-05' ),
          (SELECT id
           FROM seat_category
           WHERE name = 'VIP'
