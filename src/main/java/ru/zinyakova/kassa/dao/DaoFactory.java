@@ -34,6 +34,11 @@ public class DaoFactory {
         hikariDataSource.setUsername(System.getProperty("jdbcUsername","devel"));
         hikariDataSource.setPassword(System.getProperty("jdbcPassword","qwerty"));
 
+
+//        hikariDataSource.setJdbcUrl(System.getProperty("jdbcUrl", "jdbc:postgresql://localhost:5432/postgres"));
+//        hikariDataSource.setUsername(System.getProperty("jdbcUsername","postgres"));
+//        hikariDataSource.setPassword(System.getProperty("jdbcPassword","mysecretpassword"));
+
         return  hikariDataSource;
 
     }

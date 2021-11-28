@@ -10,7 +10,7 @@ import ru.zinyakova.kassa.service.SurveyService;
 
 import java.io.IOException;
 
-public class Main  extends Application  {
+public class Main  /*extends Application */  {
 
      //@Override
     public void start(Stage stage) throws IOException {
@@ -28,7 +28,7 @@ public class Main  extends Application  {
         //SurveyDao surveyDao = new SurveyDao();
        // surveyDao.report();
         System.out.println("1000 :");
-        surveyService.testManyTimes(1000);
+        surveyService.test(1000);
        //  System.out.println("10000 :");
         //  surveyService.testOptimization(10000);
         // System.out.println("100000 :");
