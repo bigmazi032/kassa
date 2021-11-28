@@ -61,7 +61,7 @@ public class SurveyService {
             throw e;
         } finally {
 
-             //serveyDao.deleteTestTable();
+             serveyDao.deleteTestTable();
         }
     }
 
