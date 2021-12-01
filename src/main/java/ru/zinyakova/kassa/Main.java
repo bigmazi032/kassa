@@ -28,11 +28,11 @@ public class Main  /*extends Application */  {
         //SurveyDao surveyDao = new SurveyDao();
        // surveyDao.report();
         System.out.println("1000 :");
-        surveyService.test(1000);
-       //  System.out.println("10000 :");
-        //  surveyService.testOptimization(10000);
-        // System.out.println("100000 :");
-        //surveyService.testOptimization(100000);
+        surveyService.test(10000);
+         System.out.println("10000 :");
+          surveyService.test(10000);
+         System.out.println("100000 :");
+        surveyService.test(100000);
 
     }
 }

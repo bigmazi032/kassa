@@ -4,7 +4,6 @@ package ru.zinyakova.kassa.service;
 import ru.zinyakova.kassa.dao.SurveyDao;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
 
@@ -14,10 +13,11 @@ public class SurveyService {
     public void test(int quantity){
         try {
             serveyDao.createTestTable();
+            serveyDao.addIndex();
             fillTable(quantity);
-            ArrayList<String> nameTheatres = generateRandomList(10, null);
-            ArrayList<String> nameManagers = generateRandomList(10, null);
-            ArrayList<String> nameAddress = generateRandomList(10, null);
+            ArrayList<String> nameTheatres = generateRandomList(10);
+            ArrayList<String> nameManagers = generateRandomList(10);
+            ArrayList<String> nameAddress = generateRandomList(10);
             ArrayList<Long> ids = new ArrayList<>();
             ids.add((long)(Math.random()*quantity));
             ids.add((long)(Math.random()*quantity));
@@ -27,40 +27,40 @@ public class SurveyService {
             // делаю тесты
 
             //Long index;
-            long time = repeat(100, () -> serveyDao.createTheatre("TestNameTheatre", "Pushkin", "москва"));
+            int q = 10;
+            long time = repeat(q, () -> serveyDao.createTheatre(getOneRndValue(), "Pushkin", "москва"));
             System.out.println("Добавление записи " + format(time));
 
-            time = repeat(100, () -> serveyDao.createAFewTheatres(nameTheatres, nameManagers, nameAddress));
+            time = repeat(q, () -> serveyDao.createAFewTheatres(generateRandomList(10), generateRandomList(10), generateRandomList(10)));
             System.out.println("Добавление группы записей " + format(time));
 
             System.out.println("");
-            // разогрев
+//             разогрев
             serveyDao.searchByNotPrimaryKey(names.get(getRandomIndex(quantity).intValue()));
 
-            time = repeat(100, () -> serveyDao.searchByPrimaryKey(getRandomIndex(quantity)));
+            time = repeat(q, () -> serveyDao.searchByIndex(names.get(getRandomIndex(quantity).intValue())));
             System.out.println("Поиск записи по ключевому полю " + format(time));
 
-            time = repeat(100, () -> serveyDao.searchByNotPrimaryKey(names.get(getRandomIndex(quantity).intValue())));
+            time = repeat(q, () -> serveyDao.searchByNotPrimaryKey(managers.get(getRandomIndex(quantity).intValue())));
             System.out.println("Поиск записи по не ключевому полю " + format(time));
-            time = repeat(100, () -> serveyDao.searchByMask(names.get(getRandomIndex(quantity).intValue()).substring(1, 1 + getRandomIndex(8).intValue())));
+            time = repeat(q, () -> serveyDao.searchByMask(names.get(getRandomIndex(quantity).intValue()).substring(1, 1 + getRandomIndex(8).intValue())));
             System.out.println("Поиск записи по маске " + format(time));
             System.out.println("");
-            time =  repeat(100, () -> serveyDao.update(getRandomIndex(quantity), "Sidorov"));
+            time =  repeat(q, () -> serveyDao.update(names.get(getRandomIndex(quantity).intValue()), getOneRndValue()));
             System.out.println("Изменение записи (определение изменяемой записи по ключевому полю) " + format(time));
-            time =  repeat(100, () -> serveyDao.updateByNotPrimary(managers.get(getRandomIndex(quantity).intValue()), "ТЮЗ"));
+            time =  repeat(q, () -> serveyDao.updateByNotPrimary(managers.get(getRandomIndex(quantity).intValue()), getOneRndValue()));
             System.out.println("Изменение записи (определение изменяемой записи по не ключевому полю) " + format(time));
             System.out.println("");
-            time =  repeat(100, () -> serveyDao.deleteTheatre(getRandomIndex(quantity)));
+            time =  repeat(q, () -> serveyDao.deleteTheatreByIndex(names.get(getRandomIndex(quantity).intValue())));
             System.out.println("Удаление записи (определение удаляемой записи по ключевому полю) " + format(time));
 
-            time =  repeat(100, () -> serveyDao.deleteTheatreByNotPrimaryKey(addressList.get(getRandomIndex(quantity).intValue())));
+            time =  repeat(q, () -> serveyDao.deleteTheatreByNotPrimaryKey(addressList.get(getRandomIndex(quantity).intValue())));
             System.out.println("Удаление записи (определение удаляемой записи по не ключевому полю) " + format(time));
             System.out.println("");
             System.out.println("Удаление группы записей " + format(serveyDao.deleteGroupTheatre(ids)));
         } catch (Exception e) {
             throw e;
         } finally {
-
              serveyDao.deleteTestTable();
         }
     }
@@ -134,27 +134,29 @@ public class SurveyService {
 //        }
 //    }
 
-    public void testOptimization (int amount){
-        try {
-            serveyDao.createTestTable();
-            fillTable(amount);
-            for (int i = 0; i < 99800; i++) {
-                serveyDao.deleteTheatre((long) i);
-            }
-            System.out.println(format(serveyDao.optimization()));
-        } catch (Exception e) {
-        } finally {
-            serveyDao.deleteTestTable();
-        }
-
-    }
+//    public void testOptimization (int amount){
+//        try {
+//            serveyDao.createTestTable();
+//            fillTable(amount);
+//            for (int i = 0; i < 99800; i++) {
+//                serveyDao.deleteTheatreById((long) i);
+//            }
+//            System.out.println(format(serveyDao.optimization()));
+//        } catch (Exception e) {
+//        } finally {
+//            serveyDao.deleteTestTable();
+//        }
+//
+//    }
 
     public String format(long time){
         double l = time / 1e9;
         return String.format("%.15f", l);
     }
 
-    public ArrayList<String> generateRandomList(int amount, List<String> value){
+
+    static int index = 0;
+    public ArrayList<String> generateRandomList(int amount){
         int leftLimit = 97; // letter 'a'
         int rightLimit = 122; // letter 'z'
         int targetStringLength = 10;
@@ -166,17 +168,9 @@ public class SurveyService {
                 int randomLimitedInt = leftLimit + random.nextInt(rightLimit - leftLimit + 1);
                 buffer.append((char) randomLimitedInt);
             }
+            buffer.append(index++);
             String generatedString = buffer.toString();
             names.add(generatedString);
-        }
-        if (value != null) {
-            int k = 0;
-            for(String s: value) {
-
-                //int rand = (int)(Math.random()*amount);
-                int rand = amount/2 - k;
-                names.set(rand, s);
-            }
         }
         return names;
     }
@@ -190,11 +184,13 @@ public class SurveyService {
 //        managers = generateRandomList(amount, Arrays.asList("Ivanov"));
 //        address = generateRandomList(amount, Arrays.asList("питер"));
 
-        names = generateRandomList(amount, null);
-        managers = generateRandomList(amount, null);
-        addressList = generateRandomList(amount, null);
+        names = generateRandomList(amount);
+        managers = generateRandomList(amount);
+        addressList = generateRandomList(amount);
         serveyDao.createAFewTheatres(names, managers, addressList);
     }
 
-
+    private String getOneRndValue() {
+        return generateRandomList(1).get(0);
+    }
 }

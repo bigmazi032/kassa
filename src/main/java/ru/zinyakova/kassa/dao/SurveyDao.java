@@ -18,12 +18,12 @@ public class SurveyDao {
             "       name ,\n" +
             "       manager\n" +
             "from test_theatre\n" +
-            "where id = ?";
+            "where name = ?";
 
-    public long searchByPrimaryKey(long id) {
+    public long searchByIndex(String name) {
         try (Connection connection = dataSource.getConnection()) {
             PreparedStatement preparedStatement = connection.prepareStatement(SEARCH_BY_PRIMARY_KEY_SQL);
-            preparedStatement.setLong(1, id);
+            preparedStatement.setString(1, name);
             long startTime = System.nanoTime();
             preparedStatement.execute();
             long endTime = System.nanoTime();
@@ -38,7 +38,7 @@ public class SurveyDao {
             "       name,\n" +
             "       manager\n" +
             "from test_theatre\n" +
-            "where name = ?";
+            "where manager = ?";
 
     public long searchByNotPrimaryKey(String name) {
         try (Connection connection = dataSource.getConnection()) {
@@ -98,43 +98,37 @@ public class SurveyDao {
     public long createAFewTheatres(ArrayList<String> names, ArrayList<String> managers, ArrayList<String> addresses) {
         try (Connection connection = dataSource.getConnection()) {
             long time = 0;
-            PreparedStatement preparedStatement = connection.prepareStatement(INSERT_THEATRE_SQL);
-            for (int i = 0; i < names.size(); i++) {
-                String theatre_name = names.get(i);
+            int i = 0;
+            for (String name: names) {
                 String manager_name = managers.get(i);
-                String address = addresses.get(i);
-
-
-                preparedStatement.setString(1, theatre_name);
+                String address_name = addresses.get(i);
+                PreparedStatement preparedStatement = connection.prepareStatement(INSERT_THEATRE_SQL);
+                preparedStatement.setString(1, name);
                 preparedStatement.setString(2, manager_name);
-                preparedStatement.setString(3, address);
-                preparedStatement.addBatch();
-
-                if ((i > 0 && i % 1000 == 0 )|| i == names.size() - 1) {
-                    long startTime = System.nanoTime();
-                    preparedStatement.executeBatch();
-                    long endTime = System.nanoTime();
-                    time = endTime - startTime;
-                    time += time;
-                }
+                preparedStatement.setString(3, address_name);
+                long startTime = System.nanoTime();
+                int affectedRows = preparedStatement.executeUpdate();
+                long endTime = System.nanoTime();
+                time = endTime-startTime;
+                time += time;
+                i++;
             }
-            return time;
-        } catch (SQLException e) {
+            return time ;
+        }catch (SQLException e) {
             throw new IllegalStateException("Error during execution.", e);
         }
-
     }
 
-    private final String UPDATE_THEATRES_SQL =
+    private final String UPDATE_THEATRES_INDEX_SQL =
             "update test_theatre\n" +
                     "set manager = ?\n" +
-                    "where id = ?";
+                    "where name = ?";
 
-    public long update(Long id, String manager_name) {
+    public long update(String manager_name, String name) {
         try (Connection connection = dataSource.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_THEATRES_SQL);
+            PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_THEATRES_INDEX_SQL);
             preparedStatement.setString(1, manager_name);
-            preparedStatement.setLong(2, id);
+            preparedStatement.setString(2, name);
             long startTime = System.nanoTime();
             preparedStatement.execute();
             long endTime = System.nanoTime();
@@ -165,14 +159,14 @@ public class SurveyDao {
         }
     }
 
-    private final String DELETE_THEARE_SQL =
+    private final String DELETE_THEARE_INDEX_SQL =
             "delete from test_theatre\n" +
-                    "where id = ?";
+                    "where name = ?";
 
-    public long deleteTheatre(Long id) {
+    public long deleteTheatreByIndex(String name) {
         try (Connection connection = dataSource.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement(DELETE_THEARE_SQL);
-            preparedStatement.setLong(1, id);
+            PreparedStatement preparedStatement = connection.prepareStatement(DELETE_THEARE_INDEX_SQL);
+            preparedStatement.setString(1, name);
             long startTime = System.nanoTime();
             preparedStatement.execute();
             long endTime = System.nanoTime();
@@ -201,11 +195,15 @@ public class SurveyDao {
         }
     }
 
+    private final String DELETE_THEATRE_BY_ID_SQL =
+            "delete from test_theatre\n" +
+                    "where id = ?";
+
     public int deleteGroupTheatre(ArrayList<Long> ids) {
         try (Connection connection = dataSource.getConnection()) {
             long time = 0;
             for (Long id : ids) {
-                PreparedStatement preparedStatement = connection.prepareStatement(DELETE_THEARE_SQL);
+                PreparedStatement preparedStatement = connection.prepareStatement(DELETE_THEATRE_BY_ID_SQL);
                 preparedStatement.setLong(1, id);
                 long startTime = System.nanoTime();
                 preparedStatement.execute();
@@ -227,7 +225,7 @@ public class SurveyDao {
 
     private final String CREATE_TABLE_SQL = "CREATE TABLE test_theatre\n" +
             "(id SERIAL PRIMARY KEY ,\n" +
-            " name VARCHAR(50),\n" +
+            " name VARCHAR(50) UNIQUE,\n" +
             " manager VARCHAR(50),\n" +
             " address VARCHAR(50)\n" +
             ")";
@@ -240,6 +238,19 @@ public class SurveyDao {
             throw new IllegalStateException("Error during execution.", e);
         }
     }
+
+    private final String ADD_INDEX_SQL = "ALTER TABLE `test_theatre` ADD INDEX `name_index` (`name`)";
+
+    public void addIndex() {
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(ADD_INDEX_SQL);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new IllegalStateException("Error during execution.", e);
+        }
+    }
+
+
 
     private final String DELETE_TABLE_SQL = "drop table test_theatre";
 
